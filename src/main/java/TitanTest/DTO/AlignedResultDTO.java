@@ -1,4 +1,4 @@
-package TitanTest;
+package TitanTest.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

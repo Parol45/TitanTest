@@ -1,15 +1,14 @@
-package TitanTest;
+package TitanTest.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @AllArgsConstructor
-public class ImmediateResultDTO {
-    public Long iterNumber;
+@EqualsAndHashCode(callSuper = true)
+public class ImmediateResultDTO extends FunctionResult{
     public int funcNumber;
-    public String funcResult;
-    public long calcTime;
 
     @Override
     public String toString() {
