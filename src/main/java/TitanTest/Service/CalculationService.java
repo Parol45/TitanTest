@@ -20,7 +20,7 @@ public class CalculationService {
     private final Flux<Long> interval;
 
     public CalculationService(CalcProperties calcProperties) {
-        this.interval = Flux.interval(Duration.ofSeconds(Integer.parseInt(calcProperties.getPeriod())));
+        this.interval = Flux.interval(Duration.ofSeconds(calcProperties.getPeriod()));
     }
 
     public Flux<String> immediate(String code1, String code2, int times) {
