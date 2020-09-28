@@ -1,11 +1,13 @@
 package TitanTest.Service;
 
+import TitanTest.Config.CalcProperties;
 import TitanTest.DTO.AlignedResultDTO;
 import TitanTest.DTO.FunctionResult;
 import TitanTest.DTO.ImmediateResultDTO;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -15,7 +17,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class CalculationService {
 
-    private final Flux<Long> interval = Flux.interval(Duration.ofSeconds(2));
+    private final CalcProperties calcProperties;
+
+    private final Flux<Long> interval;
+
+    public CalculationService(CalcProperties calcProperties) {
+        this.calcProperties = calcProperties;
+        this.interval = Flux.interval(Duration.ofSeconds(Integer.parseInt(calcProperties.getPeriod())));
+    }
 
     public Flux<String> immediate(String code1, String code2, int times) {
         Flux<String> firstCode = Flux.from(interval)
@@ -45,14 +54,15 @@ public class CalculationService {
 
     private FunctionResult execJS(String code, Long iter) {
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("javascript");
+        ScriptEngine engine = manager.getEngineByName("nashorn");
         try {
             long t0 = System.nanoTime();
-            engine.eval("var inp = " + iter + ";");
-            String funcResult = engine.eval(code).toString();
+            engine.eval(code);
+            Invocable invokable = (Invocable) engine;
+            String funcResult = invokable.invokeFunction("func", iter).toString();
             long t1 = System.nanoTime();
             return new FunctionResult(iter, funcResult, t1 - t0);
-        } catch (ScriptException e) {
+        } catch (ScriptException | NoSuchMethodException e) {
             e.printStackTrace();
             return new FunctionResult(iter, e.getMessage(), 0);
         }
