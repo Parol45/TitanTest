@@ -17,12 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class CalculationService {
 
-    private final CalcProperties calcProperties;
-
     private final Flux<Long> interval;
 
     public CalculationService(CalcProperties calcProperties) {
-        this.calcProperties = calcProperties;
         this.interval = Flux.interval(Duration.ofSeconds(Integer.parseInt(calcProperties.getPeriod())));
     }
 
