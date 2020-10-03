@@ -1,5 +1,6 @@
 package TitanTest.Api;
 
+import TitanTest.DTO.InputDTO;
 import TitanTest.Service.CalculationService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,11 @@ public class CalculationController {
     final private CalculationService calculationService;
 
     @PostMapping(value = "/count")
-    public Flux<String> count(@RequestParam int times, @RequestParam int isAligned, @RequestParam String code1, @RequestParam String code2) {
-        if (isAligned > 0) {
-            return calculationService.aligned(code1, code2, times);
+    public Flux<String> count(@RequestBody InputDTO input) {
+        if (input.getIsAligned() > 0) {
+            return calculationService.aligned(input);
         } else {
-            return calculationService.immediate(code1, code2, times);
+            return calculationService.immediate(input);
         }
     }
 

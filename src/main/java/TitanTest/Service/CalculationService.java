@@ -4,6 +4,7 @@ import TitanTest.Config.CalcProperties;
 import TitanTest.DTO.AlignedResultDTO;
 import TitanTest.DTO.FunctionResult;
 import TitanTest.DTO.ImmediateResultDTO;
+import TitanTest.DTO.InputDTO;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -23,27 +24,29 @@ public class CalculationService {
         this.interval = Flux.interval(Duration.ofSeconds(calcProperties.getPeriod()));
     }
 
-    public Flux<String> immediate(String code1, String code2, int times) {
+    public Flux<String> immediate(InputDTO input) {
+        int times = input.getTimes();
         Flux<String> firstCode = Flux.from(interval)
                 .takeUntil((i) -> i > times - 2)
-                .map((i) -> (new ImmediateResultDTO(i, 1, execJS(code1, i))).toString());
+                .map((i) -> (new ImmediateResultDTO(i, 1, execJS(input.getCode1(), i))).toString());
         Flux<String> secondCode = Flux.from(interval)
                 .takeUntil((i) -> i > times - 2)
-                .map((i) -> (new ImmediateResultDTO(i, 2, execJS(code2, i))).toString());
+                .map((i) -> (new ImmediateResultDTO(i, 2, execJS(input.getCode2(), i))).toString());
         return Flux.merge(firstCode, secondCode);
     }
 
-    public Flux<String> aligned(String code1, String code2, int times) {
+    public Flux<String> aligned(InputDTO input) {
+        int times = input.getTimes();
         AtomicInteger fr1Total = new AtomicInteger();
         AtomicInteger fr2Total = new AtomicInteger();
         Flux<FunctionResult> firstCode = Flux.from(interval)
                 .takeUntil((i) -> i > times - 2)
                 .doOnNext((i) -> fr1Total.getAndIncrement())
-                .map((i) -> execJS(code1, i));
+                .map((i) -> execJS(input.getCode1(), i));
         Flux<FunctionResult> secondCode = Flux.from(interval)
                 .takeUntil((i) -> i > times - 2)
                 .doOnNext((i) -> fr2Total.getAndIncrement())
-                .map((i) -> execJS(code2, i));
+                .map((i) -> execJS(input.getCode2(), i));
         return firstCode.zipWith(secondCode, (fr1, fr2) -> (new AlignedResultDTO(
                 fr1, fr1Total.get() - fr2.iterNumber - 1,
                 fr2, fr2Total.get() - fr1.iterNumber - 1)).toString());

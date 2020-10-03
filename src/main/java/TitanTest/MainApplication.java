@@ -7,8 +7,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 /*
 function func(inp) {
-var x = 45;
-var z = 2135;
 var y = 21350000*inp;
 while (y > 0) {y = y - 1;}
 return (x + z + inp);
